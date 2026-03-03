@@ -1,6 +1,6 @@
 {
   "name": "cyrillic-latin-transliteration",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Transliterate between Cyrillic and Latin scripts. Zero dependencies.",
   "type": "module",
   "main": "dist/index.js",
@@ -34,6 +34,11 @@
     "type": "git",
     "url": "https://github.com/MaxGrushevsky/cyrillic-latin-transliteration.git"
   },
+  "homepage": "https://github.com/MaxGrushevsky/cyrillic-latin-transliteration#readme",
+  "bugs": {
+    "url": "https://github.com/MaxGrushevsky/cyrillic-latin-transliteration/issues"
+  },
+  "sideEffects": false,
   "devDependencies": {
     "typescript": "^5.0.0",
     "vitest": "^4.0.0"
