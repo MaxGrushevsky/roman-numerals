@@ -5,7 +5,6 @@
 
 [![npm](https://img.shields.io/npm/v/cyrillic-latin-transliteration)](https://www.npmjs.com/package/cyrillic-latin-transliteration)
 [![license](https://img.shields.io/npm/l/cyrillic-latin-transliteration)](./LICENSE)
-[![build](https://img.shields.io/github/actions/workflow/status/MaxGrushevsky/cyrillic-latin-transliteration/ci.yml)](https://github.com/MaxGrushevsky/cyrillic-latin-transliteration/actions)
 
 ## Features
 
