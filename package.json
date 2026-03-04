@@ -1,6 +1,6 @@
 {
   "name": "cyrillic-latin-transliteration",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Transliterate between Cyrillic and Latin scripts. Zero dependencies.",
   "keywords": ["transliteration", "cyrillic", "latin", "russian", "cyrillic-latin", "latin-cyrillic"],
   "author": "MaxGrushevsky",

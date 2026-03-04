@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { toLatin, toCyrillic } from './index'
+import { toLatin, toCyrillic, detectScript, isCyrillic } from './index'
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Russian (default)
@@ -348,5 +348,41 @@ describe('toLatin — universal (no locale)', () => {
   it('handles Belarusian Ў', () => {
     expect(toLatin('Ў')).toBe('W')
     expect(toLatin('ў')).toBe('w')
+  })
+})
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Helpers
+// ─────────────────────────────────────────────────────────────────────────────
+
+describe('detectScript', () => {
+  it('detects pure Cyrillic', () => {
+    expect(detectScript('Привет')).toBe('cyrillic')
+  })
+
+  it('detects pure Latin', () => {
+    expect(detectScript('Privet')).toBe('latin')
+  })
+
+  it('detects mixed text', () => {
+    expect(detectScript('Привет, world')).toBe('mixed')
+  })
+
+  it('returns unknown for digits / symbols only', () => {
+    expect(detectScript('123 !')).toBe('unknown')
+  })
+})
+
+describe('isCyrillic', () => {
+  it('is true for Cyrillic-only text', () => {
+    expect(isCyrillic('Привет')).toBe(true)
+  })
+
+  it('is false for Latin text', () => {
+    expect(isCyrillic('Privet')).toBe(false)
+  })
+
+  it('is false for mixed text', () => {
+    expect(isCyrillic('Привет, world')).toBe(false)
   })
 })

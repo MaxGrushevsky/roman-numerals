@@ -265,6 +265,51 @@ function getToCyrillicTable(locale?: TranslitLocale): Record<string, string> {
 
 // ─── Public API ───────────────────────────────────────────────────────────────
 
+// Cyrillic Unicode range (Basic + Supplement); outside = pass-through
+const CYRILLIC_FIRST = 0x0400
+const CYRILLIC_LAST = 0x052f
+
+/** Detected dominant script for a piece of text. */
+export type DetectedScript = 'cyrillic' | 'latin' | 'mixed' | 'unknown'
+
+/**
+ * Heuristically detect what script a string is written in.
+ *
+ * - Latin = ASCII A–Z / a–z
+ * - Cyrillic = U+0400–U+052F
+ * - Digits, punctuation and other symbols are ignored
+ */
+export function detectScript(text: string): DetectedScript {
+  if (!text || typeof text !== 'string') return 'unknown'
+  let hasCyrillic = false
+  let hasLatin = false
+
+  for (let i = 0; i < text.length; i++) {
+    const code = text.charCodeAt(i)
+    if (code >= CYRILLIC_FIRST && code <= CYRILLIC_LAST) {
+      hasCyrillic = true
+    } else if (
+      // A–Z
+      (code >= 0x41 && code <= 0x5a) ||
+      // a–z
+      (code >= 0x61 && code <= 0x7a)
+    ) {
+      hasLatin = true
+    }
+
+    if (hasCyrillic && hasLatin) return 'mixed'
+  }
+
+  if (hasCyrillic) return 'cyrillic'
+  if (hasLatin) return 'latin'
+  return 'unknown'
+}
+
+/** True if string contains only Cyrillic letters (plus neutral chars). */
+export function isCyrillic(text: string): boolean {
+  return detectScript(text) === 'cyrillic'
+}
+
 /**
  * Convert Cyrillic text to Latin transliteration.
  *
@@ -280,26 +325,18 @@ function getToCyrillicTable(locale?: TranslitLocale): Record<string, string> {
 export function toLatin(text: string, options?: TranslitOptions): string {
   if (!text || typeof text !== 'string') return ''
   const table = getToLatinTable(options?.locale)
-  let output = ''
+  const out: string[] = []
   for (let i = 0; i < text.length; i++) {
-    const c4 = text.substring(i, i + 4)
-    const c3 = text.substring(i, i + 3)
-    const c2 = text.substring(i, i + 2)
-    if (table[c4] !== undefined) {
-      output += table[c4]
-      i += 3
-    } else if (table[c3] !== undefined) {
-      output += table[c3]
-      i += 2
-    } else if (table[c2] !== undefined) {
-      output += table[c2]
-      i += 1
-    } else {
-      const mapped = table[text[i]]
-      output += mapped !== undefined ? mapped : text[i]
+    const c = text[i]
+    const code = c.charCodeAt(0)
+    if (code < CYRILLIC_FIRST || code > CYRILLIC_LAST) {
+      out.push(c)
+      continue
     }
+    const mapped = table[c]
+    out.push(mapped !== undefined ? mapped : c)
   }
-  return output
+  return out.join('')
 }
 
 /**
@@ -316,30 +353,31 @@ export function toLatin(text: string, options?: TranslitOptions): string {
 export function toCyrillic(text: string, options?: TranslitOptions): string {
   if (!text || typeof text !== 'string') return ''
   const table = getToCyrillicTable(options?.locale)
-  let output = ''
+  const out: string[] = []
   let i = 0
   while (i < text.length) {
-    const c5 = text.substring(i, i + 5)
-    const c4 = text.substring(i, i + 4)
-    const c3 = text.substring(i, i + 3)
-    const c2 = text.substring(i, i + 2)
-    if (table[c5] !== undefined) {
-      output += table[c5]
+    const chunk = text.slice(i, i + 5)
+    const v5 = chunk.length === 5 ? table[chunk] : undefined
+    const v4 = chunk.length >= 4 ? table[chunk.slice(0, 4)] : undefined
+    const v3 = chunk.length >= 3 ? table[chunk.slice(0, 3)] : undefined
+    const v2 = chunk.length >= 2 ? table[chunk.slice(0, 2)] : undefined
+    if (v5 !== undefined) {
+      out.push(v5)
       i += 5
-    } else if (table[c4] !== undefined) {
-      output += table[c4]
+    } else if (v4 !== undefined) {
+      out.push(v4)
       i += 4
-    } else if (table[c3] !== undefined) {
-      output += table[c3]
+    } else if (v3 !== undefined) {
+      out.push(v3)
       i += 3
-    } else if (table[c2] !== undefined) {
-      output += table[c2]
+    } else if (v2 !== undefined) {
+      out.push(v2)
       i += 2
     } else {
-      const mapped = table[text[i]]
-      output += mapped !== undefined ? mapped : text[i]
+      const mapped = table[chunk[0]]
+      out.push(mapped !== undefined ? mapped : chunk[0])
       i++
     }
   }
-  return output
+  return out.join('')
 }

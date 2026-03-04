@@ -105,6 +105,27 @@ type TranslitLocale =
   | 'mn'  // Mongolian
 ```
 
+### `detectScript(text: string): 'cyrillic' | 'latin' | 'mixed' | 'unknown'`
+
+Heuristically detects the dominant script in a string.
+
+```ts
+detectScript('Привет')        // 'cyrillic'
+detectScript('Privet')        // 'latin'
+detectScript('Привет, world') // 'mixed'
+detectScript('123 !')         // 'unknown'
+```
+
+### `isCyrillic(text: string): boolean`
+
+Returns `true` if the string is written in Cyrillic (ignoring digits and punctuation).
+
+```ts
+isCyrillic('Привет')         // true
+isCyrillic('Привет, world')  // false
+isCyrillic('Privet')         // false
+```
+
 ## Locale differences
 
 The same Cyrillic letter can sound (and therefore transliterate) differently across languages:
